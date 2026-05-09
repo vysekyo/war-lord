@@ -1628,6 +1628,6 @@ else
 	gs_start
 fi
 
-echo -e "--> ${CW}G-Socket Bypass Stealth -@vyers${CN}"
+echo -e "--> ${CW}G-Socket Bypass Stealth -@godelic${CN}"
 
 exit_code 0
