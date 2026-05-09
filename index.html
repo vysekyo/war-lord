@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>/godelic | Nothing Here</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #07090d;
+  --surface:  #0d1117;
+  --surface2: #10161f;
+  --cyan:     #38bdf8;
+  --cyan2:    #0ea5e9;
+  --cyan-dim: rgba(56,189,248,0.08);
+  --green:    #4ade80;
+  --red:      #f87171;
+  --amber:    #fbbf24;
+  --border:   rgba(56,189,248,0.09);
+  --border2:  rgba(56,189,248,0.2);
+  --muted:    rgba(56,189,248,0.42);
+  --text:     rgba(255,255,255,0.82);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  min-height: 100vh;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(rgba(56,189,248,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(56,189,248,0.025) 1px, transparent 1px);
+  background-size: 44px 44px;
+  pointer-events: none;
+}
+
+canvas.matrix-bg {
+  position: fixed; inset: 0; z-index: 0;
+  opacity: .05; pointer-events: none;
+}
+
+.content { position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column; }
+
+/* ── NAV ── */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0 32px; height: 60px;
+  background: rgba(7,9,13,0.92);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(18px);
+}
+
+.nav-logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 18px;
+  color: #fff; text-decoration: none;
+  letter-spacing: -0.3px;
+}
+.nav-logo span { color: var(--cyan); }
+
+.nav-links { display: flex; align-items: center; gap: 4px; }
+.nav-links a {
+  font-size: 11px; letter-spacing: 1px;
+  color: var(--muted); text-decoration: none;
+  padding: 6px 12px; border-radius: 7px;
+  transition: all 0.2s;
+}
+.nav-links a:hover { background: var(--cyan-dim); color: var(--cyan); }
+.nav-badge {
+  font-size: 9px; letter-spacing: 2px;
+  padding: 4px 10px; border-radius: 999px;
+  background: rgba(248,113,113,0.07);
+  border: 1px solid rgba(248,113,113,0.18);
+  color: rgba(248,113,113,0.7);
+  margin-left: 8px;
+}
+
+/* ── STATUSBAR ── */
+.statusbar {
+  position: fixed; top: 60px; left: 50%; transform: translateX(-50%);
+  z-index: 99;
+  display: flex; gap: 20px; align-items: center;
+  padding: 6px 20px; border-radius: 999px;
+  background: rgba(7,9,13,0.7);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  font-size: 10px; color: var(--muted); letter-spacing: 1.5px;
+  white-space: nowrap;
+}
+
+.pulse-red {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 7px var(--red);
+  animation: pulse 2s ease-in-out infinite;
+  display: inline-block; margin-right: 6px;
+}
+@keyframes pulse { 0%,100%{opacity:1;}50%{opacity:0.3;} }
+
+/* ── MAIN ── */
+.main {
+  flex: 1;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  text-align: center;
+  padding: 120px 32px 80px;
+  min-height: 100vh;
+}
+
+/* scan line animation */
+.scan-wrap {
+  position: relative;
+  width: 280px; height: 280px;
+  margin-bottom: 48px;
+  animation: fadeIn .6s ease both;
+}
+
+.scan-ring {
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(56,189,248,0.12);
+  animation: ringPulse 3s ease-in-out infinite;
+}
+.scan-ring:nth-child(2) {
+  inset: 20px;
+  border-color: rgba(56,189,248,0.18);
+  animation-delay: .4s;
+}
+.scan-ring:nth-child(3) {
+  inset: 40px;
+  border-color: rgba(56,189,248,0.25);
+  animation-delay: .8s;
+}
+
+@keyframes ringPulse {
+  0%,100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.03); }
+}
+
+.scan-inner {
+  position: absolute; inset: 60px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(56,189,248,0.04) 0%, transparent 70%);
+  border: 1px solid rgba(56,189,248,0.3);
+  display: flex; align-items: center; justify-content: center;
+}
+
+.scan-line {
+  position: absolute; top: 0; left: 50%;
+  transform-origin: bottom center;
+  width: 1px; height: 50%;
+  background: linear-gradient(to top, var(--cyan), transparent);
+  animation: scanRotate 3s linear infinite;
+  opacity: 0.7;
+}
+
+@keyframes scanRotate { from{transform:rotate(0deg);}to{transform:rotate(360deg);} }
+
+.scan-cross {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.scan-cross::before, .scan-cross::after {
+  content: ''; position: absolute;
+  background: rgba(56,189,248,0.2);
+}
+.scan-cross::before { width: 100%; height: 1px; }
+.scan-cross::after  { width: 1px; height: 100%; }
+
+.scan-icon {
+  font-size: 28px; opacity: 0.5;
+  animation: iconBlink 2s step-end infinite;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--red);
+}
+@keyframes iconBlink { 0%,100%{opacity:0.5;}50%{opacity:0.15;} }
+
+/* corner brackets */
+.scan-wrap::before, .scan-wrap::after,
+.scan-wrap .corner-bl, .scan-wrap .corner-br {
+  content: ''; position: absolute;
+  width: 20px; height: 20px;
+  border-color: rgba(56,189,248,0.4); border-style: solid;
+}
+.scan-wrap::before { top: 12px; left: 12px; border-width: 2px 0 0 2px; }
+.scan-wrap::after  { top: 12px; right: 12px; border-width: 2px 2px 0 0; }
+.scan-wrap .corner-bl { bottom: 12px; left: 12px; border-width: 0 0 2px 2px; }
+.scan-wrap .corner-br { bottom: 12px; right: 12px; border-width: 0 2px 2px 0; }
+
+/* ── TEXT ── */
+.hero-pre {
+  font-size: 10px; color: var(--red); letter-spacing: 4px;
+  text-transform: uppercase; margin-bottom: 16px;
+  animation: fadeIn .5s .1s ease both;
+}
+
+.hero-code {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(64px, 12vw, 128px);
+  font-weight: 800; color: #fff;
+  letter-spacing: -4px; line-height: 1;
+  margin-bottom: 12px;
+  animation: fadeIn .7s .15s ease both;
+  position: relative; display: inline-block;
+}
+
+.hero-code .num { color: var(--red); }
+
+.hero-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(18px, 3.5vw, 28px);
+  font-weight: 800; color: #fff;
+  letter-spacing: -0.5px; margin-bottom: 14px;
+  animation: fadeIn .7s .2s ease both;
+}
+
+.hero-sub {
+  font-size: 11px; color: var(--muted); letter-spacing: 3px;
+  margin-bottom: 48px;
+  animation: fadeIn .7s .25s ease both;
+}
+
+@keyframes fadeIn { from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);} }
+
+/* ── TERMINAL BLOCK ── */
+.nothing-terminal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px; overflow: hidden;
+  max-width: 560px; width: 100%;
+  margin-bottom: 48px;
+  animation: fadeIn .8s .35s ease both;
+  text-align: left;
+}
+.term-bar {
+  height: 40px; background: rgba(0,0,0,0.3);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 16px; gap: 7px;
+  font-size: 11px; color: var(--muted);
+}
+.td { width: 10px; height: 10px; border-radius: 50%; }
+.td-r { background: #ff5f56; }
+.td-y { background: #ffbd2e; }
+.td-g { background: #27c93f; }
+.term-body {
+  padding: 20px 24px;
+  font-size: 12px; line-height: 2.2;
+  color: var(--cyan); font-weight: 300;
+}
+.term-prompt { color: var(--muted); }
+.term-out    { color: rgba(56,189,248,0.45); }
+.term-err    { color: var(--red); }
+.term-smiley { color: var(--amber); }
+.term-cursor {
+  display: inline-block; width: 7px; height: 13px;
+  background: var(--cyan); animation: cur 1s step-end infinite;
+  vertical-align: middle; margin-left: 3px;
+}
+@keyframes cur { 0%,100%{opacity:1;}50%{opacity:0;} }
+
+/* ── BACK BUTTON ── */
+.back-group {
+  display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+  animation: fadeIn .8s .45s ease both;
+}
+
+.btn-back {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 1.5px;
+  text-decoration: none; display: inline-flex;
+  align-items: center; gap: 8px;
+  padding: 11px 22px; border-radius: 10px;
+  border: 1px solid var(--border2);
+  color: var(--cyan); background: var(--cyan-dim);
+  transition: all .2s;
+}
+.btn-back:hover {
+  background: rgba(56,189,248,0.14);
+  box-shadow: 0 0 20px rgba(56,189,248,0.1);
+  transform: translateY(-2px);
+}
+
+.btn-home {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; letter-spacing: 1.5px;
+  text-decoration: none; display: inline-flex;
+  align-items: center; gap: 8px;
+  padding: 11px 22px; border-radius: 10px;
+  border: 1px solid rgba(248,113,113,0.2);
+  color: var(--red); background: rgba(248,113,113,0.06);
+  transition: all .2s;
+}
+.btn-home:hover {
+  background: rgba(248,113,113,0.12);
+  box-shadow: 0 0 20px rgba(248,113,113,0.08);
+  transform: translateY(-2px);
+}
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 22px 32px;
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 10px; color: var(--muted); letter-spacing: 1.5px;
+  position: relative; z-index: 2;
+}
+
+@media(max-width:600px){
+  .nav-links { gap: 0; }
+  footer { flex-direction: column; gap: 8px; text-align: center; }
+  .statusbar { display: none; }
+  .scan-wrap { width: 200px; height: 200px; }
+}
+</style>
+</head>
+<body>
+<canvas class="matrix-bg" id="matrix"></canvas>
+
+<!-- NAV -->
+<nav class="nav">
+  <a href="index.html" class="nav-logo">/gode<span>lic</span></a>
+  <div class="nav-links">
+    <span class="nav-badge">404</span>
+  </div>
+</nav>
+
+<!-- STATUSBAR -->
+<div class="statusbar">
+  <span><span class="pulse-red"></span>NOTHING FOUND</span>
+  <span>SCAN: COMPLETE</span>
+  <span>RESULT: NULL</span>
+  <span>STATUS: EMPTY</span>
+</div>
+
+<div class="content">
+  <main class="main">
+
+    <!-- Radar scan graphic -->
+    <div class="scan-wrap">
+      <div class="scan-ring"></div>
+      <div class="scan-ring"></div>
+      <div class="scan-ring"></div>
+      <div class="corner-bl"></div>
+      <div class="corner-br"></div>
+      <div class="scan-inner">
+        <div class="scan-cross"></div>
+        <div class="scan-line"></div>
+        <span class="scan-icon">∅</span>
+      </div>
+    </div>
+
+    <div class="hero-pre">&gt; SCAN COMPLETE — NOTHING DETECTED</div>
+    <div class="hero-title">You Found Nothing Here&nbsp;&nbsp;<span style="color:var(--amber);">:)</span></div>
+    <div class="hero-sub">// PAGE NOT FOUND // VOID DETECTED // NULL RETURNED //</div>
+
+    <!-- Terminal -->
+    <div class="nothing-terminal">
+      <div class="term-bar">
+        <div class="td td-r"></div><div class="td td-y"></div><div class="td td-g"></div>
+        <span style="margin-left:8px;font-size:11px;">bash — root@godelic:~</span>
+      </div>
+      <div class="term-body">
+        <div><span class="term-prompt">root@godelic:~$ </span><span>./scan_page.sh --deep --verbose</span></div>
+        <div class="term-out">&gt; Initializing deep scan...</div>
+        <div class="term-out">&gt; Searching for content... [████████████] 100%</div>
+        <div class="term-err">&gt; ERROR 404: Resource not found</div>
+        <div class="term-out">&gt; Attempting recovery... failed.</div>
+        <div class="term-smiley">&gt; Result: <strong>You Found Nothing Here :)</strong></div>
+        <div style="margin-top:4px;"><span class="term-prompt">root@godelic:~$ </span><span class="term-cursor"></span></div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <div>/godelic // COMMAND CENTER</div>
+    <div>© 2026 — ENCRYPTED // ALL RIGHTS RESERVED</div>
+  </footer>
+</div>
+
+<script>
+// Matrix
+const canvas = document.getElementById('matrix');
+const ctx = canvas.getContext('2d');
+const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*<>/\\|{}[]01';
+const fs = 13; let drops = [];
+function resize() {
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  drops = Array(Math.floor(canvas.width/fs)).fill(0).map(() => Math.random()*canvas.height/fs|0);
+}
+resize(); window.addEventListener('resize', resize);
+function draw() {
+  ctx.fillStyle = 'rgba(0,0,0,0.05)'; ctx.fillRect(0,0,canvas.width,canvas.height);
+  drops.forEach((y,i) => {
+    ctx.fillStyle = '#38bdf8'; ctx.font = fs+'px monospace';
+    ctx.fillText(chars[Math.random()*chars.length|0], i*fs, y*fs);
+    if (y*fs > canvas.height && Math.random() > .97) drops[i] = 0;
+    drops[i]++;
+  });
+}
+setInterval(draw, 45);
+</script>
+</body>
+</html>
