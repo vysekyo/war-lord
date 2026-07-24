@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>/godelic | Command Center</title>
+<title>none | Command Center</title>
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -491,7 +491,7 @@ footer {
 </div>
 
 <footer>
-  <div>/godelic // COMMAND CENTER</div>
+  <div>none // COMMAND CENTER</div>
   <div>© 2026 — ENCRYPTED // ALL RIGHTS RESERVED</div>
 </footer>
 
@@ -522,7 +522,7 @@ function draw(){
 setInterval(draw,42);
 
 // Typing
-const msgs=["Welcome to /godelic...","Your server. Your rules.","WHM + cPanel in one place.","Select a tool to begin."];
+const msgs=["Welcome to none...","Your server. Your rules.","WHM + cPanel in one place.","Select a tool to begin."];
 let mi=0,ci=0,el=document.getElementById('typing');
 function type(){
   if(ci<msgs[mi].length){el.textContent+=msgs[mi][ci++];setTimeout(type,46);}
