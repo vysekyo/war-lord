@@ -371,7 +371,7 @@ footer {
 
 <!-- NAV -->
 <nav class="nav">
-  <a href="index.php" class="nav-logo">/gode<span>lic</span></a>
+  <a href="index.php" class="nav-logo">no<span>ne</span></a>
   <div class="nav-links">
     <a href="index.php" class="active">./home</a>
     <a href="whm.php">./whm-panel</a>
